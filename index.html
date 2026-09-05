@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Inflection Ledger — Evidence-Based Stock Staging</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============ TOP BAR ============ -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span class="brand-mark">§</span>
+      <div class="brand-text">
+        <h1>The Inflection Ledger</h1>
+        <p>Stage a company's evidence before the earnings become obvious</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost" id="btn-show-watchlist">Watchlist</button>
+      <button class="btn btn-primary" id="btn-new-case">+ New case</button>
+    </div>
+  </header>
+
+  <!-- ============ WATCHLIST VIEW ============ -->
+  <main id="view-watchlist" class="view">
+    <section class="watchlist-intro">
+      <h2>Open cases</h2>
+      <p>Every name you're tracking through the five stages, with its current confirmation gate and any red flags. Click a case to keep building the file.</p>
+    </section>
+    <div id="watchlist-table-wrap">
+      <table class="watchlist-table" id="watchlist-table">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Sector</th>
+            <th>Stage</th>
+            <th>Confirmation gate</th>
+            <th>Flags</th>
+            <th>Updated</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="watchlist-body"></tbody>
+      </table>
+      <div id="watchlist-empty" class="empty-state" hidden>
+        <p>No cases yet.</p>
+        <p>An empty ledger has nothing to compound. Open your first case and start entering evidence.</p>
+        <button class="btn btn-primary" id="btn-empty-new-case">+ New case</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ CASE WORKSPACE VIEW ============ -->
+  <main id="view-case" class="view" hidden>
+
+    <div class="case-header">
+      <div class="case-header-fields">
+        <input type="text" id="f-company" class="case-title-input" placeholder="Company name">
+        <div class="case-subfields">
+          <input type="text" id="f-ticker" placeholder="Ticker (e.g. TRENT)">
+          <input type="text" id="f-sector" placeholder="Sector">
+        </div>
+      </div>
+      <div class="case-header-actions">
+        <button class="btn btn-ghost" id="btn-delete-case">Delete case</button>
+        <button class="btn btn-ghost" id="btn-back-to-watchlist">← All cases</button>
+      </div>
+    </div>
+
+    <div class="case-body">
+
+      <!-- STAGE RAIL -->
+      <nav class="stage-rail" id="stage-rail" aria-label="Inflection stage">
+        <p class="stage-rail-label">Current stage</p>
+        <ol id="stage-rail-list"></ol>
+        <p class="stage-rail-hint">Set this to whichever stage the evidence below actually supports — not the stage the story is asking you to believe.</p>
+      </nav>
+
+      <!-- MAIN LEDGER -->
+      <div class="ledger">
+
+        <!-- SECTION A -->
+        <section class="ledger-card" id="section-requirements">
+          <div class="ledger-card-head">
+            <span class="ledger-letter">A</span>
+            <div>
+              <h3>Five conditions for a genuine inflection</h3>
+              <p>All five should hold at once. If one is missing, this is a story, a cyclical bounce, or a good company at a bad price — not yet an asymmetric setup.</p>
+            </div>
+          </div>
+          <div id="requirements-list" class="requirement-list"></div>
+        </section>
+
+        <!-- SECTION B -->
+        <section class="ledger-card" id="section-kinds">
+          <div class="ledger-card-head">
+            <span class="ledger-letter">B</span>
+            <div>
+              <h3>What kind of inflection is this?</h3>
+              <p>Pick every mechanism at work. Each one tells you which leading variable to watch and what to verify before you trust it.</p>
+            </div>
+          </div>
+          <div id="kinds-list" class="kinds-grid"></div>
+        </section>
+
+        <!-- SECTION C+D -->
+        <section class="ledger-card" id="section-confirmations">
+          <div class="ledger-card-head">
+            <span class="ledger-letter">C</span>
+            <div>
+              <h3>Confirmation count</h3>
+              <p>The framework's bar: at least two independent operating confirmations, plus at least one cash or balance-sheet confirmation, while the market still prices the old earnings path.</p>
+            </div>
+          </div>
+          <div class="confirmation-columns">
+            <div class="confirmation-col">
+              <h4>Operating evidence</h4>
+              <div id="operating-list" class="check-list"></div>
+            </div>
+            <div class="confirmation-col">
+              <h4>Cash &amp; balance-sheet evidence</h4>
+              <div id="cash-list" class="check-list"></div>
+            </div>
+          </div>
+          <div class="gate-readout" id="gate-readout"></div>
+        </section>
+
+        <!-- SECTION E -->
+        <section class="ledger-card" id="section-falsepositives">
+          <div class="ledger-card-head">
+            <span class="ledger-letter">D</span>
+            <div>
+              <h3>False-positive screen</h3>
+              <p>An inflection is guilty until proven innocent. Flag anything below that's true here — even one changes the read.</p>
+            </div>
+          </div>
+          <div id="falsepositive-list" class="check-list check-list-warning"></div>
+        </section>
+
+        <!-- SECTION F -->
+        <section class="ledger-card" id="section-checklist">
+          <div class="ledger-card-head">
+            <span class="ledger-letter">E</span>
+            <div>
+              <h3>Working checklist</h3>
+              <p>Six questions to sit with before calling anything an inflection.</p>
+            </div>
+          </div>
+          <div id="checklist-groups"></div>
+        </section>
+
+        <!-- SECTION G — Capex bridge -->
+        <section class="ledger-card" id="section-capex">
+          <div class="ledger-card-head">
+            <span class="ledger-letter">F</span>
+            <div>
+              <h3>Capex-to-cash bridge</h3>
+              <p>Only relevant if the inflection runs through new capacity. Mark where the company actually sits — a commissioning certificate is not demand.</p>
+            </div>
+          </div>
+          <div class="capex-bridge" id="capex-bridge"></div>
+        </section>
+
+        <!-- SECTION H — Valuation -->
+        <section class="ledger-card" id="section-valuation">
+          <div class="ledger-card-head">
+            <span class="ledger-letter">G</span>
+            <div>
+              <h3>What the price already assumes</h3>
+              <p>Work backwards from today's price to the EPS growth it requires, instead of forecasting a target price forward.</p>
+            </div>
+          </div>
+          <div class="valuation-grid">
+            <div class="valuation-inputs">
+              <label>Current price (₹)
+                <input type="number" id="v-price" step="any" placeholder="e.g. 2450">
+              </label>
+              <label>Current EPS (₹, trailing)
+                <input type="number" id="v-eps" step="any" placeholder="e.g. 42">
+              </label>
+              <label>Required annual return (%)
+                <input type="number" id="v-return" step="any" placeholder="e.g. 15">
+              </label>
+              <label>Holding period (years)
+                <input type="number" id="v-years" step="1" placeholder="e.g. 5">
+              </label>
+              <label>Assumed exit P/E (×)
+                <input type="number" id="v-exitpe" step="any" placeholder="e.g. 25">
+              </label>
+            </div>
+            <div class="valuation-output" id="valuation-output">
+              <p class="valuation-placeholder">Fill in the five fields to see the EPS path this price already needs.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- NOTES -->
+        <section class="ledger-card" id="section-notes">
+          <div class="ledger-card-head">
+            <span class="ledger-letter">H</span>
+            <div>
+              <h3>Case notes</h3>
+              <p>Sources, annual report page references, quarter you last verified — whatever future-you needs.</p>
+            </div>
+          </div>
+          <textarea id="f-notes" rows="6" placeholder="e.g. FY26 AR pg. 34: store count 40→60. Verify Q3 same-store sales before moving to Stage 3."></textarea>
+        </section>
+
+      </div>
+
+      <!-- VERDICT PANEL -->
+      <aside class="verdict-panel" id="verdict-panel">
+        <p class="verdict-label">Reading, right now</p>
+        <div class="verdict-stage" id="verdict-stage"></div>
+        <div class="verdict-row" id="verdict-genuineness"></div>
+        <div class="verdict-row" id="verdict-gate"></div>
+        <div class="verdict-row" id="verdict-flags"></div>
+        <div class="verdict-row" id="verdict-valuation"></div>
+        <div class="verdict-text" id="verdict-text"></div>
+      </aside>
+
+    </div>
+  </main>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
