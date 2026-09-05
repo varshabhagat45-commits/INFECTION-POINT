@@ -183,10 +183,10 @@ function showView(name){
 =================================================================== */
 function renderSectorDropdown(){
   const sel = document.getElementById("sector-select");
-  PRESET_SECTORS.forEach(s=>{
+  ALL_SECTOR_NAMES.forEach(name=>{
     const opt = document.createElement("option");
-    opt.value = s.name;
-    opt.textContent = s.name;
+    opt.value = name;
+    opt.textContent = name;
     sel.appendChild(opt);
   });
 }
@@ -216,43 +216,76 @@ function renderSectorStocks(sectorName){
   const grid = document.getElementById("sector-stock-grid");
   const caveat = document.getElementById("sector-caveat");
   grid.innerHTML = "";
-  if (!sectorName){ caveat.hidden = true; return; }
+  if (!sectorName){ caveat.hidden = true; renderAddStockForm(null); return; }
   caveat.hidden = false;
 
   const sector = PRESET_SECTORS.find(s=>s.name === sectorName);
-  if (!sector) return;
 
-  sector.stocks.forEach(preset=>{
-    const existing = findCaseByTicker(preset.ticker);
-    const stage = STAGES.find(s=>s.id === preset.stage) || STAGES[0];
-    const flagsInPreset = Object.values(preset.falsepositives || {}).filter(Boolean).length;
+  if (!sector || sector.stocks.length === 0){
+    grid.innerHTML = `<p class="sector-empty-note">No researched cases yet for ${escapeHtml(sectorName)} — add the first one below and it'll show up here next time.</p>`;
+  } else {
+    sector.stocks.forEach(preset=>{
+      const existing = findCaseByTicker(preset.ticker);
+      const stage = STAGES.find(s=>s.id === preset.stage) || STAGES[0];
+      const flagsInPreset = Object.values(preset.falsepositives || {}).filter(Boolean).length;
 
-    const card = document.createElement("div");
-    card.className = "sector-stock-card";
-    card.innerHTML = `
-      <div class="sector-stock-card-head">
-        <div>
-          <h4>${escapeHtml(preset.company)}</h4>
-          <span class="ticker">${escapeHtml(preset.ticker)}</span>
+      const card = document.createElement("div");
+      card.className = "sector-stock-card";
+      card.innerHTML = `
+        <div class="sector-stock-card-head">
+          <div>
+            <h4>${escapeHtml(preset.company)}</h4>
+            <span class="ticker">${escapeHtml(preset.ticker)}</span>
+          </div>
+          <span class="pill pill-stage-${stage.id}">Stage ${stage.id}</span>
         </div>
-        <span class="pill pill-stage-${stage.id}">Stage ${stage.id}</span>
-      </div>
-      <p class="stock-note">${escapeHtml(preset.notes || "")}</p>
-      <div class="stock-flags">
-        ${flagsInPreset > 0 ? `<span class="pill pill-flag">${flagsInPreset} flag${flagsInPreset>1?'s':''}</span>` : `<span class="pill pill-flag-clear">clear</span>`}
-      </div>
-      ${existing ? `<div class="already-tag">✓ Already in your watchlist — click to open</div>` : ""}
-    `;
-    card.addEventListener("click", ()=>{
-      let target = existing;
-      if (!target){
-        target = caseFromPreset(preset, sectorName);
-        cases.push(target);
-        saveCases(cases);
-      }
-      openCase(target.id);
+        <p class="stock-note">${escapeHtml(preset.notes || "")}</p>
+        <div class="stock-flags">
+          ${flagsInPreset > 0 ? `<span class="pill pill-flag">${flagsInPreset} flag${flagsInPreset>1?'s':''}</span>` : `<span class="pill pill-flag-clear">clear</span>`}
+        </div>
+        ${existing ? `<div class="already-tag">✓ Already in your watchlist — click to open</div>` : ""}
+      `;
+      card.addEventListener("click", ()=>{
+        let target = existing;
+        if (!target){
+          target = caseFromPreset(preset, sectorName);
+          cases.push(target);
+          saveCases(cases);
+        }
+        openCase(target.id);
+      });
+      grid.appendChild(card);
     });
-    grid.appendChild(card);
+  }
+
+  renderAddStockForm(sectorName);
+}
+
+function renderAddStockForm(sectorName){
+  const wrap = document.getElementById("sector-add-form");
+  if (!sectorName){ wrap.hidden = true; return; }
+  wrap.hidden = false;
+  wrap.innerHTML = `
+    <h4>Add a stock to ${escapeHtml(sectorName)}</h4>
+    <div class="sector-add-row">
+      <input type="text" id="add-company" placeholder="Company name">
+      <input type="text" id="add-ticker" placeholder="Ticker">
+      <button class="btn btn-primary btn-small" id="btn-add-stock">+ Add &amp; open case</button>
+    </div>
+  `;
+  document.getElementById("btn-add-stock").addEventListener("click", ()=>{
+    const company = document.getElementById("add-company").value.trim();
+    const ticker = document.getElementById("add-ticker").value.trim();
+    if (!company){ document.getElementById("add-company").focus(); return; }
+    const existing = ticker ? findCaseByTicker(ticker) : null;
+    if (existing){ openCase(existing.id); return; }
+    const c = blankCase();
+    c.company = company;
+    c.ticker = ticker;
+    c.sector = sectorName;
+    cases.push(c);
+    saveCases(cases);
+    openCase(c.id);
   });
 }
 

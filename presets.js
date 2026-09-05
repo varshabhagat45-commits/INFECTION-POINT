@@ -7,9 +7,40 @@
    expects ongoing re-verification.
 =================================================================== */
 
+/* ===================================================================
+   FULL SECTOR TAXONOMY (Screener.in classification)
+   Every sector shows up in the dropdown. Only some have researched
+   stock cards yet (see PRESET_SECTORS below) — the rest let you add
+   a stock inline and build the file up as you go.
+=================================================================== */
+const ALL_SECTOR_NAMES = [
+  "Aerospace & Defence", "Agro Chemicals", "Air Transport Service", "Alcoholic Beverages",
+  "Auto Ancillaries", "Automobile", "Banks", "Bearings", "Cables",
+  "Capital Goods - Electrical Equipment", "Capital Goods-Non Electrical Equipment",
+  "Castings, Forgings & Fastners", "Cement", "Cement - Products", "Ceramic Products",
+  "Chemicals", "Computer Education", "Construction", "Consumer Durables",
+  "Credit Rating Agencies", "Crude Oil & Natural Gas", "Diamond, Gems and Jewellery",
+  "Diversified", "Dry cells", "E-Commerce/App based Aggregator", "Edible Oil", "Education",
+  "Electronics", "Engineering", "Entertainment", "ETF", "Ferro Alloys", "Fertilizers",
+  "Finance", "Financial Services", "FMCG", "Gas Distribution", "Glass & Glass Products",
+  "Healthcare", "Hotels & Restaurants", "Infrastructure Developers & Operators",
+  "Infrastructure Investment Trusts", "Insurance", "IT - Hardware", "IT - Software",
+  "Leather", "Logistics", "Marine Port & Services", "Media - Print/Television/Radio",
+  "Mining & Mineral products", "Miscellaneous", "Non Ferrous Metals", "Oil Drill/Allied",
+  "Online Media", "Packaging", "Paints/Varnish", "Paper", "Petrochemicals",
+  "Pharmaceuticals", "Plantation & Plantation Products", "Plastic products",
+  "Plywood Boards/Laminates", "Power Generation & Distribution", "Power Infrastructure",
+  "Printing & Stationery", "Quick Service Restaurant", "Railways",
+  "Readymade Garments/ Apparells", "Real Estate Investment Trusts", "Realty",
+  "Refineries", "Refractories", "Retail", "Sanitaryware", "Ship Building", "Shipping",
+  "Steel", "Stock/ Commodity Brokers", "Sugar", "Telecom-Handsets/Mobile",
+  "Telecomm Equipment & Infra Services", "Telecomm-Service", "Textiles",
+  "Tobacco Products", "Trading", "Tyres",
+];
+
 const PRESET_SECTORS = [
   {
-    name: "Defence",
+    name: "Aerospace & Defence",
     stocks: [
       {
         ticker: "BEL", company: "Bharat Electronics",
@@ -61,7 +92,7 @@ const PRESET_SECTORS = [
   },
 
   {
-    name: "Renewable Energy",
+    name: "Capital Goods - Electrical Equipment",
     stocks: [
       {
         ticker: "WAAREEENER", company: "Waaree Energies",
@@ -106,11 +137,36 @@ const PRESET_SECTORS = [
         falsepositives: {},
         notes: "Track the same capex-to-cash bridge as Waaree. Being a more recently listed, less-covered name than Waaree, there's more room for this to still be genuinely Stage 2 rather than already priced in.",
       },
+      {
+        ticker: "TRIL", company: "Transformers & Rectifiers (India)",
+        stage: 2,
+        requirements: { relevant: "yes", leadingvar: "yes", twoconfirm: "yes", cashevidence: "partial", priceold: "partial" },
+        requirementNotes: {
+          leadingvar: "Transformer order books across the industry are at multi-year highs on T&D capex, renewable integration and data-centre power demand.",
+          twoconfirm: "Order book plus rising industry-wide capacity utilisation for transformer makers.",
+        },
+        kinds: { capacity: true, demand: true },
+        operating: { capacityutil: true, volumes: true },
+        cash: {},
+        falsepositives: {},
+        notes: "Smaller-cap names in this space are still mid-way through their own capex-to-cash bridge — check where this one specifically sits (commissioning vs. utilisation) before assuming the whole sector's tailwind applies equally.",
+      },
+      {
+        ticker: "GEVERNOVA", company: "GE Vernova T&D India",
+        stage: 4,
+        requirements: { relevant: "yes", leadingvar: "partial", twoconfirm: "partial", cashevidence: "yes", priceold: "no" },
+        requirementNotes: { priceold: "Large, well-covered grid-equipment name — the T&D capex story is already the market's consensus view here." },
+        kinds: { demand: true },
+        operating: { volumes: true },
+        cash: { ocf: true },
+        falsepositives: {},
+        notes: "A benchmark large-cap for the grid-capex theme rather than a fresh Stage-2 candidate.",
+      },
     ],
   },
 
   {
-    name: "Auto Components",
+    name: "Auto Ancillaries",
     stocks: [
       {
         ticker: "SONACOMS", company: "Sona BLW Precision Forgings",
@@ -152,7 +208,7 @@ const PRESET_SECTORS = [
   },
 
   {
-    name: "Electronics / EMS",
+    name: "Electronics",
     stocks: [
       {
         ticker: "DIXON", company: "Dixon Technologies",
@@ -197,22 +253,8 @@ const PRESET_SECTORS = [
   },
 
   {
-    name: "Power Equipment",
+    name: "Capital Goods-Non Electrical Equipment",
     stocks: [
-      {
-        ticker: "TRIL", company: "Transformers & Rectifiers (India)",
-        stage: 2,
-        requirements: { relevant: "yes", leadingvar: "yes", twoconfirm: "yes", cashevidence: "partial", priceold: "partial" },
-        requirementNotes: {
-          leadingvar: "Transformer order books across the industry are at multi-year highs on T&D capex, renewable integration and data-centre power demand.",
-          twoconfirm: "Order book plus rising industry-wide capacity utilisation for transformer makers.",
-        },
-        kinds: { capacity: true, demand: true },
-        operating: { capacityutil: true, volumes: true },
-        cash: {},
-        falsepositives: {},
-        notes: "Smaller-cap names in this space are still mid-way through their own capex-to-cash bridge — check where this one specifically sits (commissioning vs. utilisation) before assuming the whole sector's tailwind applies equally.",
-      },
       {
         ticker: "TRITURBINE", company: "Triveni Turbine",
         stage: 3,
@@ -225,15 +267,15 @@ const PRESET_SECTORS = [
         notes: "Longer, steadier track record than the newer transformer names — less asymmetric, but the confirmation is more mature.",
       },
       {
-        ticker: "GEVERNOVA", company: "GE Vernova T&D India",
-        stage: 4,
-        requirements: { relevant: "yes", leadingvar: "partial", twoconfirm: "partial", cashevidence: "yes", priceold: "no" },
-        requirementNotes: { priceold: "Large, well-covered grid-equipment name — the T&D capex story is already the market's consensus view here." },
+        ticker: "KIRLOSENG", company: "Kirloskar Pneumatic",
+        stage: 2,
+        requirements: { relevant: "yes", leadingvar: "partial", twoconfirm: "partial", cashevidence: "partial", priceold: "yes" },
+        requirementNotes: {},
         kinds: { demand: true },
-        operating: { volumes: true },
-        cash: { ocf: true },
+        operating: {},
+        cash: {},
         falsepositives: {},
-        notes: "A benchmark large-cap for the grid-capex theme rather than a fresh Stage-2 candidate.",
+        notes: "Smaller and less-covered industrial capex play — treat as an early, unconfirmed candidate rather than a settled read.",
       },
     ],
   },
@@ -284,7 +326,7 @@ const PRESET_SECTORS = [
   },
 
   {
-    name: "Capital Goods & Engineering",
+    name: "Engineering",
     stocks: [
       {
         ticker: "THERMAX", company: "Thermax",
@@ -307,17 +349,6 @@ const PRESET_SECTORS = [
         cash: { ocf: true },
         falsepositives: {},
         notes: "A formalisation/regulation-driven inflection — the key falsifier to watch is any slowdown in the blending mandate itself, since the order book depends on that policy holding.",
-      },
-      {
-        ticker: "KIRLOSENG", company: "Kirloskar Pneumatic",
-        stage: 2,
-        requirements: { relevant: "yes", leadingvar: "partial", twoconfirm: "partial", cashevidence: "partial", priceold: "yes" },
-        requirementNotes: {},
-        kinds: { demand: true },
-        operating: {},
-        cash: {},
-        falsepositives: {},
-        notes: "Smaller and less-covered industrial capex play — treat as an early, unconfirmed candidate rather than a settled read.",
       },
     ],
   },
@@ -440,7 +471,7 @@ const PRESET_SECTORS = [
   },
 
   {
-    name: "Logistics & Infrastructure",
+    name: "Logistics",
     stocks: [
       {
         ticker: "CONCOR", company: "Container Corporation of India",

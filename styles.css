@@ -145,6 +145,17 @@ button{ font-family: var(--font-body); cursor:pointer; }
 .sector-caveat{ margin-top: 16px; font-size: 12.5px; color: var(--muted); max-width: 640px; padding: 10px 14px; border-left: 2px solid var(--ember); background: var(--ink-raised); }
 
 .sector-stock-grid{ margin-top: 24px; display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.sector-empty-note{ color: var(--muted); font-size: 13.5px; grid-column: 1 / -1; padding: 18px 0; }
+
+.sector-add-form{
+  margin-top: 24px; padding: 18px 20px;
+  border: 1px dashed var(--ink-line); border-radius: var(--radius);
+  max-width: 640px;
+}
+.sector-add-form h4{ font-family: var(--font-body); font-size: 13px; font-weight:600; color: var(--muted); margin-bottom: 12px; }
+.sector-add-row{ display:flex; gap: 10px; }
+.sector-add-row input{ flex:1; }
+.sector-add-row button{ flex-shrink:0; }
 .sector-stock-card{
   background: var(--paper); color: var(--ink-text); border-radius: var(--radius);
   padding: 18px 20px; cursor:pointer; transition: transform 0.1s ease;
