@@ -170,6 +170,97 @@ function computeValuation(c){
 }
 
 /* ===================================================================
+   VIEW SWITCHING
+=================================================================== */
+function showView(name){
+  document.getElementById("view-watchlist").hidden = name !== "watchlist";
+  document.getElementById("view-sectors").hidden = name !== "sectors";
+  document.getElementById("view-case").hidden = name !== "case";
+}
+
+/* ===================================================================
+   SECTOR BROWSE
+=================================================================== */
+function renderSectorDropdown(){
+  const sel = document.getElementById("sector-select");
+  PRESET_SECTORS.forEach(s=>{
+    const opt = document.createElement("option");
+    opt.value = s.name;
+    opt.textContent = s.name;
+    sel.appendChild(opt);
+  });
+}
+
+function findCaseByTicker(ticker){
+  if (!ticker) return null;
+  return cases.find(c => (c.ticker || "").trim().toLowerCase() === ticker.trim().toLowerCase());
+}
+
+function caseFromPreset(preset, sectorName){
+  const c = blankCase();
+  c.company = preset.company;
+  c.ticker = preset.ticker;
+  c.sector = sectorName;
+  c.stage = preset.stage || 1;
+  c.requirements = { ...preset.requirements };
+  c.requirementNotes = { ...preset.requirementNotes };
+  c.kinds = { ...preset.kinds };
+  c.operating = { ...preset.operating };
+  c.cash = { ...preset.cash };
+  c.falsepositives = { ...preset.falsepositives };
+  c.notes = preset.notes || "";
+  return c;
+}
+
+function renderSectorStocks(sectorName){
+  const grid = document.getElementById("sector-stock-grid");
+  const caveat = document.getElementById("sector-caveat");
+  grid.innerHTML = "";
+  if (!sectorName){ caveat.hidden = true; return; }
+  caveat.hidden = false;
+
+  const sector = PRESET_SECTORS.find(s=>s.name === sectorName);
+  if (!sector) return;
+
+  sector.stocks.forEach(preset=>{
+    const existing = findCaseByTicker(preset.ticker);
+    const stage = STAGES.find(s=>s.id === preset.stage) || STAGES[0];
+    const flagsInPreset = Object.values(preset.falsepositives || {}).filter(Boolean).length;
+
+    const card = document.createElement("div");
+    card.className = "sector-stock-card";
+    card.innerHTML = `
+      <div class="sector-stock-card-head">
+        <div>
+          <h4>${escapeHtml(preset.company)}</h4>
+          <span class="ticker">${escapeHtml(preset.ticker)}</span>
+        </div>
+        <span class="pill pill-stage-${stage.id}">Stage ${stage.id}</span>
+      </div>
+      <p class="stock-note">${escapeHtml(preset.notes || "")}</p>
+      <div class="stock-flags">
+        ${flagsInPreset > 0 ? `<span class="pill pill-flag">${flagsInPreset} flag${flagsInPreset>1?'s':''}</span>` : `<span class="pill pill-flag-clear">clear</span>`}
+      </div>
+      ${existing ? `<div class="already-tag">✓ Already in your watchlist — click to open</div>` : ""}
+    `;
+    card.addEventListener("click", ()=>{
+      let target = existing;
+      if (!target){
+        target = caseFromPreset(preset, sectorName);
+        cases.push(target);
+        saveCases(cases);
+      }
+      openCase(target.id);
+    });
+    grid.appendChild(card);
+  });
+}
+
+document.getElementById("sector-select").addEventListener("change", (e)=>{
+  renderSectorStocks(e.target.value);
+});
+
+/* ===================================================================
    RENDER: WATCHLIST
 =================================================================== */
 function renderWatchlist(){
@@ -239,15 +330,13 @@ function getCurrentCase(){
 
 function openCase(id){
   currentCaseId = id;
-  document.getElementById("view-watchlist").hidden = true;
-  document.getElementById("view-case").hidden = false;
+  showView("case");
   renderCase();
 }
 
 function backToWatchlist(){
   currentCaseId = null;
-  document.getElementById("view-case").hidden = true;
-  document.getElementById("view-watchlist").hidden = false;
+  showView("watchlist");
   renderWatchlist();
 }
 
@@ -579,6 +668,9 @@ document.getElementById("btn-new-case").addEventListener("click", newCase);
 document.getElementById("btn-empty-new-case").addEventListener("click", newCase);
 document.getElementById("btn-show-watchlist").addEventListener("click", backToWatchlist);
 document.getElementById("btn-back-to-watchlist").addEventListener("click", backToWatchlist);
+document.getElementById("btn-show-sectors").addEventListener("click", ()=>{
+  showView("sectors");
+});
 document.getElementById("btn-delete-case").addEventListener("click", ()=>{
   const c = getCurrentCase();
   if (!c) return;
@@ -592,4 +684,6 @@ document.getElementById("btn-delete-case").addEventListener("click", ()=>{
 /* ===================================================================
    INIT
 =================================================================== */
+renderSectorDropdown();
+showView("watchlist");
 renderWatchlist();

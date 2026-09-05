@@ -23,13 +23,32 @@
       </div>
     </div>
     <div class="topbar-actions">
+      <button class="btn btn-ghost" id="btn-show-sectors">Browse by sector</button>
       <button class="btn btn-ghost" id="btn-show-watchlist">Watchlist</button>
       <button class="btn btn-primary" id="btn-new-case">+ New case</button>
     </div>
   </header>
 
+  <!-- ============ SECTOR BROWSE VIEW ============ -->
+  <main id="view-sectors" class="view" hidden>
+    <section class="watchlist-intro">
+      <h2>Browse by sector</h2>
+      <p>Pick a sector to see a shortlist of names with the framework already read on them — stage, evidence, and open questions. Click a card to open the full case and take it from there.</p>
+    </section>
+    <div class="sector-picker">
+      <label for="sector-select">Sector</label>
+      <select id="sector-select">
+        <option value="">Choose a sector…</option>
+      </select>
+    </div>
+    <p class="sector-caveat" id="sector-caveat" hidden>
+      These reads are a starting point drafted from public order-book disclosures and brokerage commentary — not live data. Confirm the current quarter's numbers before acting.
+    </p>
+    <div id="sector-stock-grid" class="sector-stock-grid"></div>
+  </main>
+
   <!-- ============ WATCHLIST VIEW ============ -->
-  <main id="view-watchlist" class="view">
+  <main id="view-watchlist" class="view" hidden>
     <section class="watchlist-intro">
       <h2>Open cases</h2>
       <p>Every name you're tracking through the five stages, with its current confirmation gate and any red flags. Click a case to keep building the file.</p>
@@ -231,6 +250,7 @@
 
 </div>
 
+<script src="presets.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
