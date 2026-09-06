@@ -186,6 +186,8 @@ button{ font-family: var(--font-body); cursor:pointer; }
   font-size: 12px;
   font-weight: 500;
   font-family: var(--font-mono);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .pill-stage-1{ background: var(--ink-line); color: var(--muted); }
 .pill-stage-2{ background: var(--verdigris-dim); color: var(--verdigris); }
